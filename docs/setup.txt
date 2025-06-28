@@ -1,0 +1,9 @@
+You must run these commands in your terminal before running program:
+
+"
+pip install streamlit
+pip install ultralytics
+pip install pillow
+"
+
+Then run the actual program using: "python -m streamlit run app.py"
