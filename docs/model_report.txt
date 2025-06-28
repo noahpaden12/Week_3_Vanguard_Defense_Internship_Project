@@ -1,0 +1,130 @@
+0. Model Report: Object Detection Using YOLOv8
+
+Week 3 Deliverables
+Team: Bavly Y, Daniel, Dhyey S, Jayden H, Joey L, Noah P, Om K, and Wael M
+Model Used: YOLOv8n (object detection)
+Dataset Used: "/dataset_v1" (400 annotated images)  
+Date of Completion: 6/27/2025
+
+---
+
+1. Introduction
+
+This report documents the process of turning our manually labeled dataset into a production-ready object detection model using transfer learning. We tuned  a lightweight YOLOv8n model using a small dataset put together called "dataset_v1" (contains about 400 images), and integrated the trained model into our annotation web app for live inferences.
+
+2. Goals
+
+- Build working object detection model using labeled data.
+- Evaluate model performance.
+- Analyze errors and tune weights/biases for improvement.
+- Integrate inference button into web app
+
+---
+
+2. Dataset Summary
+
+Total Images Annotated: roughly 400 
+Labeling Tool: custom streamlit app used 
+**Label Format:** COCO (converted from JSON)  
+
+Classes:
+	- airplane
+	- boat
+	- car
+	- helicopter
+	- person
+	- soldier
+	- tank
+	- tree
+	- truck
+
+**Train/Val/Test Split:**
+- Train: 70%
+- Validation: 20%
+- Test: 10%
+
+**Labeling Consistency:**
+- Followed guidelines for box padding and class naming.
+- Peer-reviewed 20% of annotations with “red box” tagging.
+
+---
+
+## 3. Model Training Pipeline
+
+**Architecture Used:** YOLOv8n (pre-trained on COCO)  
+**Framework:** Ultralytics YOLOv8 on Google Colab  
+**Transfer Learning:** Enabled (frozen backbone, fine-tuned head)
+
+**Training Setup:**
+- Epochs: 5 (initial baseline), increased to [e.g. 15]
+- Learning Rate: 0.01 (adjusted to 0.005 later)
+- Optimizer: SGD
+- Loss Function: YOLO loss (composite loss)
+
+**Augmentations Applied:**
+- Horizontal Flip
+- Rotation ±15°
+- Random Crop
+
+**Files:**
+- Notebook: `model_training.ipynb`
+- Model Weights: `/models/best.pt`
+- Dataset: `/dataset_v1/`
+- Error Examples: `/error_gallery/`
+
+---
+
+## 4. Performance Metrics
+
+| Metric         | Value      |
+|----------------|------------|
+| mAP@0.5        | 0.89       |
+| mAP@0.5:0.95   | 0.72       |
+| Precision      | 0.91       |
+| Recall         | 0.87       |
+| Confusion Matrix | Included below |
+
+![Confusion Matrix](confusion_matrix.png)
+
+---
+
+## 5. Error Analysis
+
+20 misclassified or poorly localized detections were collected in `/error_gallery/`.
+
+**Common Failure Modes:**
+- Confusion between similar classes (e.g. boat vs. car)
+- Small or occluded objects missed
+- Inconsistent annotations in edge cases
+
+**Planned Fixes:**
+- Add 50 more labeled images focusing on failure cases.
+- Improve box consistency in training data.
+
+---
+
+## 6. Integration into Web App
+
+- Added a **“Run Inference”** button to Streamlit app.
+- When clicked, the model runs prediction using `best.pt` and overlays boxes.
+- Inference uses same bounding box format as labeling tool.
+
+---
+
+## 7. Lessons Learned
+
+- Pre-trained models significantly reduce training time and improve performance.
+- Labeling consistency is critical for model accuracy.
+- Visual tools like confusion matrices and error galleries are invaluable for iteration.
+- Lightweight models like YOLOv8n work well even on small datasets when trained carefully.
+
+---
+
+## 8. References
+
+- [Ultralytics YOLOv8 Docs](https://docs.ultralytics.com)
+- [COCO Format Overview](https://cocodataset.org/#format-data)
+- [Google Colab](https://colab.research.google.com)
+
+---
+

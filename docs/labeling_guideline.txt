@@ -1,0 +1,15 @@
+Labeling Guideline:
+
+    1. Select your corresponding dataset you would like to annotate images from
+
+    2. Select the corresponding label of the object your are annotation form the images
+
+    3. Select either the corresponding rectangular or polygonal bounding box drawing tool for whatever you are annotating
+
+    4. Whence you complete an annotation copy and past the JSON COCO-formate data into the corresponding brackets
+        - If you used the rectangular annotation tool you would copy and paste the data into {"rects": [HERE], "polys": []}
+        - If you used the polygonal annotation tool you would copy and paste the data into {"rects": [], "polys": [HERE]}
+
+    5. Now that you have put the data into the corresponding brackets click the "Save Annotations" button and you are done!
+
+    6. Click either the forward or backward arrow and then repeat steps 1-6 again
