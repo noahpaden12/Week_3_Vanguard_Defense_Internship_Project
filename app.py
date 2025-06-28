@@ -321,7 +321,7 @@ if c2.button("Reset All"):
     st.rerun()
 
 if c3.button("Run Inference"):
-    model_path = "models/yolov8n.pt"  
+    model_path = "models/best.pt"  
     model = YOLO(model_path)
 
     results = model(str(bg_path))
