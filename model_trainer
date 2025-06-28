@@ -1,0 +1,74 @@
+from ultralytics import YOLO
+from pathlib import Path
+import json
+import yaml
+
+def create_dataset_yaml(json_file, images_dir):
+    """
+    Create a YOLOv8 dataset YAML file from COCO-format JSON and images folder.
+    This assumes the JSON is COCO-style with 'images', 'annotations', and 'categories'.
+    """
+    with open(json_file) as f:
+        data = json.load(f)
+
+    categories = sorted(data["categories"], key=lambda x: x["id"])
+    names = [cat["name"] for cat in categories]
+
+    images = data["images"]
+    images_dir = Path(images_dir)
+    
+    total_images = len(images)
+    train_count = int(0.8 * total_images)
+    train_images = images[:train_count]
+    val_images = images[train_count:]
+
+    # Write train.txt and val.txt files listing image paths (optional but can help)
+    # Or just define relative paths in YAML directly
+
+    # Prepare train and val image paths relative to dataset root
+    train_files = [str(images_dir / img["file_name"]) for img in train_images]
+    val_files = [str(images_dir / img["file_name"]) for img in val_images]
+
+    # Create dataset yaml content
+    dataset = {
+        "path": str(images_dir.parent),  # dataset root is parent folder of images_dir
+        "train": str(images_dir.name),   # folder name of images_dir relative to path
+        "val": str(images_dir.name),     # same folder for val; can also separate if you split images physically
+        "nc": len(names),
+        "names": names,
+    }
+
+    yaml_path = Path("dataset.yaml")
+    with open(yaml_path, "w") as f:
+        yaml.dump(dataset, f, sort_keys=False)
+
+    print(f"Dataset YAML saved to {yaml_path}")
+    return yaml_path
+
+def train_yolov8(json_annotations, images_folder, epochs=50, batch=16, imgsz=640, lr0=0.01):
+    dataset_yaml = create_dataset_yaml(json_annotations, images_folder)
+
+    # Load pretrained YOLOv8n model
+    model = YOLO("yolov8n.pt")
+
+    # Train the model
+    results = model.train(
+        data=str(dataset_yaml),
+        epochs=epochs,
+        batch=batch,
+        imgsz=imgsz,
+        name="manual_yolov8n_training",
+        save=True,
+        save_period=1,
+        device=0,          # Use GPU 0 if available; else CPU
+        cache=True,
+        lr0=lr0,           # initial learning rate
+    )
+
+    print(f"Training complete. Best model saved at: runs/train/manual_yolov8n_training/weights/best.pt")
+
+if __name__ == "__main__":
+    json_annotations = "manual_annotations.json"
+    images_folder = "xview_sample"
+
+    train_yolov8(json_annotations, images_folder, epochs=50, batch=16, imgsz=640, lr0=0.01)
